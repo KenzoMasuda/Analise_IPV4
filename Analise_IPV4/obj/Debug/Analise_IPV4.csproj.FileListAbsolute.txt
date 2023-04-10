@@ -1,0 +1,8 @@
+D:\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.exe.config
+D:\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.exe
+D:\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.pdb
+D:\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.AssemblyReference.cache
+D:\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.SuggestedBindingRedirects.cache
+D:\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.CoreCompileInputs.cache
+D:\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.exe
+D:\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.pdb
