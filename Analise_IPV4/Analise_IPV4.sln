@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Analise_IPV4", "Analise_IPV4.csproj", "{7D7C9D9B-6013-4C64-8DD1-E0C5D2EB2B32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D7C9D9B-6013-4C64-8DD1-E0C5D2EB2B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D7C9D9B-6013-4C64-8DD1-E0C5D2EB2B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D7C9D9B-6013-4C64-8DD1-E0C5D2EB2B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D7C9D9B-6013-4C64-8DD1-E0C5D2EB2B32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D686DFB6-87F7-403C-A399-B2DC4BF06054}
+	EndGlobalSection
+EndGlobal
