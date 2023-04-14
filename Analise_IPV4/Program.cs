@@ -37,6 +37,7 @@ namespace Analise_IPV4
                     }
                     else
                     {
+                        Console.WriteLine("Entrou aqui");
                         CalculaIP(ipv4);
                     }
                 }
@@ -51,8 +52,53 @@ namespace Analise_IPV4
 
         public static void CalculaIpSubRede((String ip, int cidr) ipv4)
         {
-            int octetosRede = ipv4.cidr / 8;
+            int octetoRede = 0;
+            int qtdOctetosRede = ipv4.cidr / 8;
             int bitsSubRede = ipv4.cidr % 8;
+            int qtdDot = qtdOctetosRede - 1;
+            int qtdSR = (int)Math.Pow(2, bitsSubRede);
+            long qtdHosts = (long)Math.Pow(2, 32 - ipv4.cidr);
+            int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede)); //8 bits, iniciando em 0, portanto o maior expoente é 7
+
+            int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
+
+            String octetoBase = ipv4.ip.Substring(indexOctetoSubRede+1, 3);
+            StringBuilder sb = new StringBuilder(); // criar função que retorna ip de rede
+
+            String ipRede = GetIpRede(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
+
+            sb.Append(ipRede);
+            sb[sb.Length - 1] = '1';
+            String firstValid = sb.ToString();
+
+            sb.Clear();
+
+        }
+
+        public static String GetIpRede(String ip, int qtdSR, int indexOctetoSubRede, int qtdOctetosRede, int bitsSubRede)
+        {
+            int octetoRede = 0;
+            int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede));
+            StringBuilder sb = new StringBuilder();
+
+            String octetoBase = ipv4.ip.Substring(indexOctetoSubRede + 1, 3);
+            sb.Append(ip.Substring(0, indexOctetoSubRede));
+            Console.WriteLine("Octeto a ser calculado para obter o ip de rede: " + octetoBase);
+            for (int i = 0; i < qtdSR; i++)
+            {
+                if (int.Parse(octetoBase) > octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
+                {
+                    sb.Append("." + octetoRede.ToString("D3"));
+                    break;
+                }
+                else octetoRede += qtdFaixasRede;
+            }
+            //Console.WriteLine(sb.ToString());
+            for (int i = 0; i < 4 - qtdOctetosRede - 1; i++)
+            {
+                sb.Append(".000");
+            }
+            return sb.ToString();
         }
 
         public static void CalculaIpPadrao((String ip, int cidr) ipv4)
@@ -103,7 +149,7 @@ namespace Analise_IPV4
             {
                 CalculaIpPadrao(ipv4);
             }
-            //else CalculaIpSubRede(ipv4);
+            else CalculaIpSubRede(ipv4);
         }
 
         public static String ToExtenseMask(int cidr) //atualmente usada no começo do programa, será agora utilizada no final para imprimir resultado
@@ -235,7 +281,7 @@ namespace Analise_IPV4
                 ipv4.ip = input.Substring(0, tam - 3);
                 //ipv4.mask = ToExtenseMask(int.Parse(input.Substring(tam - 2, 2))); //retirar função e manter formato CIDR
                 ipv4.mask = int.Parse(input.Substring(tam - 2, 2));
-            }                                                                      //primeiro criar função que transforma extense em cidr
+            }                                                        
             else if (input[tam - 16].Equals(' '))
             {
                 ipv4.ip = input.Substring(0, tam - 16);
