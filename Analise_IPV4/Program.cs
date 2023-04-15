@@ -18,13 +18,13 @@ namespace Analise_IPV4
             Console.WriteLine("Informe o IP e máscara. O padrão CIDR e por extenso da máscara são aceitos.");
             Console.WriteLine("Siga os exemplos abaixo:\nCIDR: 192.168.000.054/08\nExtenso: 192.168.000.054 255.000.000.000");
 
-            input = Console.ReadLine();
+            input = Console.ReadLine().Trim();
 
             if (ValidaEntrada(input))
             {
                 //início da validação do ip 
-                Console.WriteLine(ipv4.ip);
-                Console.WriteLine(ipv4.mask);
+                //Console.WriteLine(ipv4.ip);
+                //Console.WriteLine(ipv4.mask);
                 if (!ValidaIP(ipv4.ip))
                 {
                     Console.WriteLine(ipv4.ip);
@@ -38,7 +38,6 @@ namespace Analise_IPV4
                     }
                     else
                     {
-                        Console.WriteLine("Entrou aqui");
                         CalculaIP(ipv4);
                     }
                 }
@@ -50,7 +49,30 @@ namespace Analise_IPV4
             Console.ReadKey(); // espera o usuário pressionar uma tecla
         }
 
-        public static void CalculaIpSubRede((String ip, int cidr) ipv4)
+        public static String GetFirstValid(String ipRede)                               //Recebe o IP de Rede
+        {                                                                               //Incrementa 1 ao último octeto e retorna como primeiro IP válido
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ipRede.Substring(0, 12));
+
+            String lastOcteto = ipRede.Substring(ipRede.Length - 3);
+            lastOcteto = (int.Parse(lastOcteto) + 1).ToString("D3");
+            sb.Append(lastOcteto); //talvez colocar ".' aqui
+
+            return sb.ToString();
+        }
+
+        public static String GetLastValid(String ipBroadCast)                           //Recebe o IP de BroadCast
+        {                                                                               //Decrementa 1 ao último octeto e retorna como último IP válido
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ipBroadCast.Substring(0, 12));
+
+            String lastOcteto = ipBroadCast.Substring(ipBroadCast.Length - 3);
+            lastOcteto = (int.Parse(lastOcteto) - 1).ToString("D3");
+            sb.Append(lastOcteto); //talvez colocar ".' aqui
+
+            return sb.ToString();
+        }
+        public static void CalculaIpSubRede((String ip, int cidr) ipv4)    
         {
             int qtdOctetosRede = ipv4.cidr / 8;
             int bitsSubRede = ipv4.cidr % 8;
@@ -58,34 +80,11 @@ namespace Analise_IPV4
             int qtdSR = (int)Math.Pow(2, bitsSubRede);
             long qtdHost = (long)Math.Pow(2, 32 - ipv4.cidr) - 2;
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede)); //8 bits, iniciando em 0, portanto o maior expoente é 7
-
             int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
-
-            //String octetoBase = ipv4.ip.Substring(indexOctetoSubRede+1, 3);
-            StringBuilder sb = new StringBuilder(); // criar função que retorna ip de rede
-
             String ipRede = GetIpRede(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
-
-            //criar função deste processo abaixo
-            sb.Append(ipRede);
-            String lastOcteto = sb.ToString().Substring(sb.Length - 3); //pega ultimo octeto que sempre será o octeto do primeiro ip válido 
-            lastOcteto = (int.Parse(lastOcteto) + 1).ToString("D3");        //passa ele para inteiro, incrementa 1 e retorna para String;
-            Console.WriteLine(lastOcteto);
-            //sb.Append(sb.ToString().Substring(0, 12) + lastOcteto);     //devolve para sb, o valor de sb até o terceiro octeto mais o último octeto recalculado
-            Console.WriteLine(sb.ToString());
-            Console.WriteLine(sb.ToString().Substring(0,11));
-            sb.Replace(sb.ToString(), sb.ToString().Substring(0, 11) + "." + lastOcteto);
-            String firstValid = sb.ToString();
-            
-            sb.Clear();
-
+            String firstValid = GetFirstValid(ipRede);
             String ipBroadCast = GetIpBroadCast(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
-            sb.Append(ipBroadCast);
-            lastOcteto = sb.ToString().Substring(sb.Length - 3); //pega ultimo octeto que sempre será o octeto do primeiro ip válido
-            lastOcteto = (int.Parse(lastOcteto) - 1).ToString();        //passa ele para inteiro, incrementa 1 e retorna para String;
-            sb.Replace(sb.ToString(), sb.ToString().Substring(0, 11) + "." + lastOcteto);     //devolve para sb, o valor de sb até o terceiro octeto mais o último octeto recalculado
-            String lastValid = sb.ToString();
-
+            String lastValid = GetLastValid(ipBroadCast);
             String mask = ToExtenseMask(ipv4.cidr);
 
 
@@ -104,17 +103,21 @@ namespace Analise_IPV4
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede));
             StringBuilder sb = new StringBuilder();
 
-            String octetoBase = ip.Substring(indexOctetoSubRede + 1, 3);     //octeto a ser utilizado como base para encontrar em qual sub rede está
+            String octetoBase = ip.Substring(indexOctetoSubRede + 1, 3);     //Octeto a ser calculado para obter o ip de broadcast
             sb.Append(ip.Substring(0, indexOctetoSubRede));
-            for (int i = 0; i < qtdSR; i++)
+            for (int i = 0; i < qtdSR; i++)                                  //inicia com o octeto do ip de subrede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
-                if (int.Parse(octetoBase) > octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
-                {
-                    int proxSubrede = octetoRede + qtdFaixasRede;
-                    sb.Append("." + (proxSubrede - 1).ToString("D3"));
+                if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
+                {                                                           //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
+                    sb.Append("." + (octetoRede + qtdFaixasRede - 1).ToString("D3"));
                     break;
                 }
-                else octetoRede += qtdFaixasRede;
+                else if (int.Parse(octetoBase) == (octetoRede + qtdFaixasRede))
+                {
+                    sb.Append('.' + (octetoRede + qtdFaixasRede*2 - 1).ToString("D3")); //se for igual ao octeto seguinte, atribui o seguinte
+                    break;
+                }
+                else octetoRede += qtdFaixasRede;                            //enquanto não chegar, incrementa pulando os octetos de IP de rede
             }
             for (int i = 0; i < 4 - qtdOctetosRede - 1; i++)
             {
@@ -135,14 +138,14 @@ namespace Analise_IPV4
    
             for (int i = 0; i < qtdSR; i++)                                  //inicia com o ip de rede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
-                if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede)) 
-                {                                                           //se octetoBase estiver ENTRE dois octetos, pega o que veio antes
+                if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
+                {                                                           //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
                     sb.Append("." + octetoRede.ToString("D3"));
                     break;
                 }
                 else if(int.Parse(octetoBase) == (octetoRede + qtdFaixasRede))
                 {
-                    sb.Append('.' + (octetoRede + qtdFaixasRede).ToString()); //se for igual ao octeto da frente, pega ele
+                    sb.Append('.' + (octetoRede + qtdFaixasRede).ToString("D3")); //se for igual ao octeto seguinte, atribui o seguinte
                     break;
                 }
                 else octetoRede += qtdFaixasRede;                            //enquanto não chegar, incrementa pulando os octetos de IP de rede
@@ -246,17 +249,14 @@ namespace Analise_IPV4
 
         public static bool ValidaIP(String ip)                      //Recebe o ip
         {                                                           //Chama ValidaOctetos()
-            bool valid = false;
+            // valid = false;
             String[] octetosIP = ip.Split('.');
            
             Console.WriteLine("Analisando endereço IP...");
-            if (ValidaOctetos(octetosIP))
-            {
-                Console.WriteLine("entrou aqui");
-                valid = true;
-                Console.WriteLine("Endereço IP segue o padrão!");
-            }
-            return valid;
+            return (ValidaOctetos(octetosIP));
+
+            //Console.WriteLine("Endereço IP segue o padrão!");
+            
         }
 
         public static bool ValidaOctetos(String[] Octetos)         //Recebe um vetor de octetos
@@ -265,9 +265,7 @@ namespace Analise_IPV4
             int octInt;
             foreach (String octString in Octetos) 
             {
-                Console.WriteLine("entrou aq 2");
                 if (int.TryParse(octString, out octInt)) {
-                    Console.WriteLine("entrou aq 3");
                     if (octInt < 0 || octInt > 255) valid = false;
                 }
                 else return valid = false;

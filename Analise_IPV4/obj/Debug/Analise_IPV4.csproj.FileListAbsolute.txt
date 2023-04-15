@@ -14,3 +14,11 @@ D:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.Suggeste
 D:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.CoreCompileInputs.cache
 D:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.exe
 D:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.pdb
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.exe.config
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.exe
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\bin\Debug\Analise_IPV4.pdb
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.AssemblyReference.cache
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.SuggestedBindingRedirects.cache
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.csproj.CoreCompileInputs.cache
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.exe
+Y:\KENZO\GitHub\Analise_IPV4\Analise_IPV4\obj\Debug\Analise_IPV4.pdb
