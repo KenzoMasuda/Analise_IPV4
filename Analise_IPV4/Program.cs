@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 //using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,10 +78,13 @@ namespace Analise_IPV4
             int qtdOctetosRede = ipv4.cidr / 8;
             int bitsSubRede = ipv4.cidr % 8;
             int qtdDot = qtdOctetosRede - 1;
+            if(qtdDot < 0) qtdDot = 0;
             int qtdSR = (int)Math.Pow(2, bitsSubRede);
             long qtdHost = (long)Math.Pow(2, 32 - ipv4.cidr) - 2;
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede)); //8 bits, iniciando em 0, portanto o maior expoente é 7
-            int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
+            //int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
+            //indexOctetoSubRede = indexOctetoSubRede == 0 ? indexOctetoSubRede : indexOctetoSubRede++;
+            int indexOctetoSubRede = (qtdOctetosRede * 3 + qtdDot) == 0 ? 0 : (qtdOctetosRede * 3 + qtdDot);
             String ipRede = GetIpRede(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
             String firstValid = GetFirstValid(ipRede);
             String ipBroadCast = GetIpBroadCast(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
@@ -88,12 +92,12 @@ namespace Analise_IPV4
             String mask = ToExtenseMask(ipv4.cidr);
 
 
-            Console.WriteLine("Máscara: " + mask);
-            Console.WriteLine("IP rede: " + ipRede);
+            Console.WriteLine("Máscara:      " + mask);
+            Console.WriteLine("IP rede:      " + ipRede);
             Console.WriteLine("IP broadcast: " + ipBroadCast);
-            Console.WriteLine("First válid: " + firstValid);
-            Console.WriteLine("Last válid: " + lastValid);
-            Console.WriteLine("Quantidade de Hosts: " + qtdHost);
+            Console.WriteLine("First válid:  " + firstValid);
+            Console.WriteLine("Last válid:   " + lastValid);
+            Console.WriteLine("Hosts:        " + qtdHost);
 
         }
 
@@ -103,18 +107,19 @@ namespace Analise_IPV4
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede));
             StringBuilder sb = new StringBuilder();
 
-            String octetoBase = ip.Substring(indexOctetoSubRede + 1, 3);     //Octeto a ser calculado para obter o ip de broadcast
+            String octetoBase = ip.Substring(indexOctetoSubRede, 3);         //Octeto a ser calculado para obter o ip de broadcast
             sb.Append(ip.Substring(0, indexOctetoSubRede));
             for (int i = 0; i < qtdSR; i++)                                  //inicia com o octeto do ip de subrede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
+                
                 if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
-                {                                                           //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
-                    sb.Append("." + (octetoRede + qtdFaixasRede - 1).ToString("D3"));
+                {   //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
+                    sb.Append(sb.ToString() == "" ? (octetoRede + qtdFaixasRede - 1).ToString("D3") : '.' + (octetoRede + qtdFaixasRede - 1).ToString("D3"));
                     break;
                 }
                 else if (int.Parse(octetoBase) == (octetoRede + qtdFaixasRede))
-                {
-                    sb.Append('.' + (octetoRede + qtdFaixasRede*2 - 1).ToString("D3")); //se for igual ao octeto seguinte, atribui o seguinte
+                {   //se for igual ao octeto seguinte, atribui o seguinte
+                    sb.Append(sb.ToString() == "" ? (octetoRede + qtdFaixasRede * 2 - 1).ToString("D3") : '.' + (octetoRede + qtdFaixasRede * 2 - 1).ToString("D3"));
                     break;
                 }
                 else octetoRede += qtdFaixasRede;                            //enquanto não chegar, incrementa pulando os octetos de IP de rede
@@ -132,25 +137,29 @@ namespace Analise_IPV4
             int octetoRede = 0;
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede));
             StringBuilder sb = new StringBuilder();
-
-            String octetoBase = ipv4.ip.Substring(indexOctetoSubRede + 1, 3); //Octeto a ser calculado para obter o ip de rede
+            String vazio = "";
+            String octetoBase = ipv4.ip.Substring(indexOctetoSubRede, 3); //Octeto a ser calculado para obter o ip de rede
             sb.Append(ip.Substring(0, indexOctetoSubRede));
-   
+           
+            Console.WriteLine("sb: " + sb.ToString());
+            Console.WriteLine("octetoBase: " + octetoBase);
+            Console.WriteLine("octetoRede: " + octetoRede);
+            Console.WriteLine("qtdFaixasRede: " + qtdFaixasRede);
             for (int i = 0; i < qtdSR; i++)                                  //inicia com o ip de rede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
                 if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
-                {                                                           //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
-                    sb.Append("." + octetoRede.ToString("D3"));
+                {   //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
+                    sb.Append(sb.ToString() == "" ? octetoRede.ToString("D3") : "." + octetoRede.ToString("D3"));
                     break;
                 }
                 else if(int.Parse(octetoBase) == (octetoRede + qtdFaixasRede))
-                {
-                    sb.Append('.' + (octetoRede + qtdFaixasRede).ToString("D3")); //se for igual ao octeto seguinte, atribui o seguinte
+                {   //se for igual ao octeto seguinte, atribui o seguinte
+                    sb.Append(sb.ToString() == "" ? (octetoRede + qtdFaixasRede).ToString("D3") : '.' + (octetoRede + qtdFaixasRede).ToString("D3"));
                     break;
                 }
                 else octetoRede += qtdFaixasRede;                            //enquanto não chegar, incrementa pulando os octetos de IP de rede
             }
-            //Console.WriteLine(sb.ToString()); 
+            
             for (int i = 0; i < 4 - qtdOctetosRede - 1; i++)          
             {
                 sb.Append(".000");
@@ -180,9 +189,10 @@ namespace Analise_IPV4
             {
                 sb.Append(".000");
             }
-            ipRede = sb.ToString();                     
-             
-            sb.Insert(sb.Length - 1, '1');                               //Troca último caractere do ip de rede por '1', como se estivesse somando 1
+            ipRede = sb.ToString();
+
+            sb.Remove(sb.Length - 1, 1);
+            sb.Insert(sb.Length, '1');                               //Troca último caractere do ip de rede por '1', como se estivesse somando 1
             firstValid = sb.ToString();
             sb.Clear();
 
@@ -193,16 +203,17 @@ namespace Analise_IPV4
             }
             ipBroadCast = sb.ToString();
 
-            sb.Insert(sb.Length - 1, '4');                              //Troca último caractere do ip de rede por '4', como se estivesse subtraindo 1
+            sb.Remove(sb.Length - 1, 1);
+            sb.Insert(sb.Length, '4');                              //Troca último caractere do ip de rede por '4', como se estivesse subtraindo 1
             lastValid = sb.ToString();
             sb.Clear();
 
-            Console.WriteLine("Máscara: " + mask);
-            Console.WriteLine("IP rede: " + ipRede);
+            Console.WriteLine("Máscara:      " + mask);
+            Console.WriteLine("IP rede:      " + ipRede);
             Console.WriteLine("IP broadcast: " + ipBroadCast);
-            Console.WriteLine("First válid: " + firstValid);
-            Console.WriteLine("Last válid: " + lastValid);
-            Console.WriteLine("Quantidade de Hosts: " + qtdHost);
+            Console.WriteLine("First válid:  " + firstValid);
+            Console.WriteLine("Last válid:   " + lastValid);
+            Console.WriteLine("Hosts:        " + qtdHost);
         }
 
         public static void CalculaIP((String ip, int mask) ipv4)             //Recebe a entrada (ip+mask)
@@ -214,12 +225,12 @@ namespace Analise_IPV4
             else CalculaIpSubRede(ipv4);
         }
 
-        public static String ToExtenseMask(int cidr)                //Recebe o CIDR do IP
-        {                                                           //Calcula qtd de Octetos fixos (Rede), como também a qtd de Bits do octeto de subrede, caso houver 
-            StringBuilder mask = new StringBuilder();               //Completa os octetos fixos com "255"
+        public static String ToExtenseMask(int cidr)           //Recebe o CIDR do IP
+        {                                                      //Calcula qtd de Octetos fixos (Rede), como também a qtd de Bits do octeto de subrede, caso houver 
+            StringBuilder mask = new StringBuilder();          //Completa os octetos fixos com "255"
             int qtdOctetosRede = cidr / 8;                     //Se houver octeto de subrede, transformar os bits de subrede para decimal com getOctetForDecimal
-            int qtdBitRede = cidr % 8;                              //Se houver, preenche octetos restantes com "000"
-                                                                    //Retorna máscara por extenso
+            int qtdBitRede = cidr % 8;                         //Se houver, preenche octetos restantes com "000"
+                                                               //Retorna máscara por extenso
             for (int i = 0; i < qtdOctetosRede; i++)
             {
                 mask.Append("255");
@@ -227,8 +238,8 @@ namespace Analise_IPV4
                 mask.Append(".");
             }
             if (qtdBitRede != 0)
-            {
-                mask.Append("." + GetOctetForDecimal(qtdBitRede));
+            { 
+                mask.Append(mask.ToString() == "" ? GetOctetForDecimal(qtdBitRede) : "." + GetOctetForDecimal(qtdBitRede));
                 qtdOctetosRede++;
             }
             for (int i = 0; i < (4 - qtdOctetosRede); i++)
