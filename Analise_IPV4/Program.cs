@@ -84,7 +84,7 @@ namespace Analise_IPV4
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede)); //8 bits, iniciando em 0, portanto o maior expoente é 7
             //int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
             //indexOctetoSubRede = indexOctetoSubRede == 0 ? indexOctetoSubRede : indexOctetoSubRede++;
-            int indexOctetoSubRede = (qtdOctetosRede * 3 + qtdDot) == 0 ? 0 : (qtdOctetosRede * 3 + qtdDot);
+            int indexOctetoSubRede = (qtdOctetosRede * 3 + qtdDot) == 0 ? 0 : (qtdOctetosRede * 3 + qtdDot)+1;
             String ipRede = GetIpRede(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
             String firstValid = GetFirstValid(ipRede);
             String ipBroadCast = GetIpBroadCast(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
@@ -108,7 +108,7 @@ namespace Analise_IPV4
             StringBuilder sb = new StringBuilder();
 
             String octetoBase = ip.Substring(indexOctetoSubRede, 3);         //Octeto a ser calculado para obter o ip de broadcast
-            sb.Append(ip.Substring(0, indexOctetoSubRede));
+            sb.Append(ip.Substring(0, indexOctetoSubRede == 0 ? 0 : indexOctetoSubRede-1));
             for (int i = 0; i < qtdSR; i++)                                  //inicia com o octeto do ip de subrede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
                 
@@ -137,24 +137,18 @@ namespace Analise_IPV4
             int octetoRede = 0;
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede));
             StringBuilder sb = new StringBuilder();
-            String vazio = "";
             String octetoBase = ipv4.ip.Substring(indexOctetoSubRede, 3); //Octeto a ser calculado para obter o ip de rede
-            sb.Append(ip.Substring(0, indexOctetoSubRede));
-           
-            Console.WriteLine("sb: " + sb.ToString());
-            Console.WriteLine("octetoBase: " + octetoBase);
-            Console.WriteLine("octetoRede: " + octetoRede);
-            Console.WriteLine("qtdFaixasRede: " + qtdFaixasRede);
+            sb.Append(ip.Substring(0, indexOctetoSubRede == 0 ? 0 : indexOctetoSubRede-1));
             for (int i = 0; i < qtdSR; i++)                                  //inicia com o ip de rede 0, verificando se a faixa do IP atual está entre um ip de rede ou do próximo
             {
                 if (int.Parse(octetoBase) >= octetoRede && int.Parse(octetoBase) < (octetoRede + qtdFaixasRede))
                 {   //se octetoBase estiver ENTRE dois octetos ou for igual ao primeiro, pega o que veio antes
-                    sb.Append(sb.ToString() == "" ? octetoRede.ToString("D3") : "." + octetoRede.ToString("D3"));
+                    sb.Append(sb.ToString() == "" ? octetoRede.ToString("D3") : ("." + octetoRede.ToString("D3")));
                     break;
                 }
                 else if(int.Parse(octetoBase) == (octetoRede + qtdFaixasRede))
                 {   //se for igual ao octeto seguinte, atribui o seguinte
-                    sb.Append(sb.ToString() == "" ? (octetoRede + qtdFaixasRede).ToString("D3") : '.' + (octetoRede + qtdFaixasRede).ToString("D3"));
+                    sb.Append(sb.ToString() == "" ? (octetoRede + qtdFaixasRede).ToString("D3") : ('.' + (octetoRede + qtdFaixasRede).ToString("D3")));
                     break;
                 }
                 else octetoRede += qtdFaixasRede;                            //enquanto não chegar, incrementa pulando os octetos de IP de rede
@@ -332,11 +326,12 @@ namespace Analise_IPV4
         public static bool ValidaEntrada(String input)                //Retorna true se o formato padrão de entrada estiver correto 
         {                                                             //Analisa se entrada está em CIDR ou por extenso   
             int tam = input.Length;                                   //Valida a máscara em ToCidrMask() e caso entrar já em CIDR
+            int cidr = 0;
             if (input[tam - 3].Equals('/'))                           //Caso o CIDR for menor/igual que 0 ou igual/maior que 31, cidr = 0; 
             {
                 ipv4.ip = input.Substring(0, tam - 3);
-                ipv4.mask = int.Parse(input.Substring(tam - 2, 2));
-                int cidr = int.Parse(input.Substring(tam - 2, 2));
+                //ipv4.mask = int.TryParse(input.Substring(tam - 2, 2), out _);
+                bool sucess = int.TryParse(input.Substring(tam - 2, 2), out cidr);
                 if (cidr >= 0 && cidr < 31)
                     ipv4.mask = cidr;
                 else ipv4.mask = 0;
