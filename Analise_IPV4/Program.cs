@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
-//using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,39 +15,36 @@ namespace Analise_IPV4
         static void Main(string[] args)
         {
             String input = "";
-     
-            Console.WriteLine("Informe o IP e máscara. O padrão CIDR e por extenso da máscara são aceitos.");
-            Console.WriteLine("Siga os exemplos abaixo:\nCIDR: 192.168.000.054/08\nExtenso: 192.168.000.054 255.000.000.000");
 
-            input = Console.ReadLine().Trim();
-
-            if (ValidaEntrada(input))
+            do
             {
-                //início da validação do ip 
-                //Console.WriteLine(ipv4.ip);
-                //Console.WriteLine(ipv4.mask);
-                if (!ValidaIP(ipv4.ip))
+                Console.Clear();
+                Console.WriteLine("---------------------------Programa de Console para cálculos básicos de IPV4-----------------------\n");
+                Console.WriteLine("O padrão CIDR e por extenso da máscara são aceitos.");
+                Console.WriteLine("Cada campo deve possuir 3 dígitos, enquanto o campo CIDR (caso utilizado), deve possuir 2 dígitos.");
+                Console.WriteLine("Siga os exemplos abaixo: ");
+                Console.WriteLine("CIDR:    192.168.000.054/08");
+                Console.WriteLine("Extenso: 192.168.000.054 255.000.000.000");
+                Console.Write("Informe IP e máscara:");
+                input = Console.ReadLine().Trim();
+
+                if (ValidaEntrada(input))
                 {
-                    Console.WriteLine(ipv4.ip);
-                    Console.WriteLine("Endereço IP apresenta erro lógico!");
-                }
-                else
-                {
-                    if (ipv4.ip.Equals("000.000.000.000") || ipv4.ip.Equals("255.255.255.255"))
+                    if (!ValidaIP(ipv4.ip))
                     {
-                        Console.WriteLine("Endereço IP inválido!");
+                        Console.WriteLine("Endereço IP apresenta erro lógico!");
                     }
+                    else if (ipv4.mask == 0) Console.WriteLine("Máscara inválida");
                     else
                     {
-                        CalculaIP(ipv4);
+                        if (ipv4.ip.Equals("000.000.000.000") || ipv4.ip.Equals("255.255.255.255")) Console.WriteLine("Endereço IP inválido!");
+                        else CalculaIP(ipv4);
                     }
                 }
-            }
-            else if (ipv4.mask == 0) Console.WriteLine("Máscara inválida");
-            else Console.WriteLine("A entrada não segue a formatação padrão, digite novamente conforme os exemplos!");
+                else Console.WriteLine("A entrada não segue a formatação padrão, digite novamente conforme os exemplos!");
 
-            Console.WriteLine("Pressione qualquer tecla para sair...");
-            Console.ReadKey(); // espera o usuário pressionar uma tecla
+                Console.WriteLine("Pressione qualquer tecla para calcular um novo IP, ou x para sair");
+            } while(Console.ReadKey().Key != ConsoleKey.X);
         }
 
         public static String GetFirstValid(String ipRede)                               //Recebe o IP de Rede
@@ -57,7 +54,7 @@ namespace Analise_IPV4
 
             String lastOcteto = ipRede.Substring(ipRede.Length - 3);
             lastOcteto = (int.Parse(lastOcteto) + 1).ToString("D3");
-            sb.Append(lastOcteto); //talvez colocar ".' aqui
+            sb.Append(lastOcteto);
 
             return sb.ToString();
         }
@@ -69,7 +66,7 @@ namespace Analise_IPV4
 
             String lastOcteto = ipBroadCast.Substring(ipBroadCast.Length - 3);
             lastOcteto = (int.Parse(lastOcteto) - 1).ToString("D3");
-            sb.Append(lastOcteto); //talvez colocar ".' aqui
+            sb.Append(lastOcteto);
 
             return sb.ToString();
         }
@@ -82,8 +79,7 @@ namespace Analise_IPV4
             int qtdSR = (int)Math.Pow(2, bitsSubRede);
             long qtdHost = (long)Math.Pow(2, 32 - ipv4.cidr) - 2;
             int qtdFaixasRede = (int)Math.Pow(2, (8 - bitsSubRede)); //8 bits, iniciando em 0, portanto o maior expoente é 7
-            //int indexOctetoSubRede = qtdOctetosRede * 3 + qtdDot;
-            //indexOctetoSubRede = indexOctetoSubRede == 0 ? indexOctetoSubRede : indexOctetoSubRede++;
+           
             int indexOctetoSubRede = (qtdOctetosRede * 3 + qtdDot) == 0 ? 0 : (qtdOctetosRede * 3 + qtdDot)+1;
             String ipRede = GetIpRede(ipv4.ip, qtdSR, indexOctetoSubRede, qtdOctetosRede, bitsSubRede);
             String firstValid = GetFirstValid(ipRede);
@@ -207,6 +203,7 @@ namespace Analise_IPV4
             Console.WriteLine("IP broadcast: " + ipBroadCast);
             Console.WriteLine("First válid:  " + firstValid);
             Console.WriteLine("Last válid:   " + lastValid);
+            Console.WriteLine("SubRedes:     " + qtdSR);
             Console.WriteLine("Hosts:        " + qtdHost);
         }
 
@@ -335,20 +332,15 @@ namespace Analise_IPV4
                 if (cidr >= 0 && cidr < 31)
                     ipv4.mask = cidr;
                 else ipv4.mask = 0;
-            }                                                        
+            }
             else if (input[tam - 16].Equals(' '))
             {
                 ipv4.ip = input.Substring(0, tam - 16);
                 ipv4.mask = ToCidrMask(input.Substring(tam - 15));
-                //if (ipv4.mask == 0) return false;
             }
             else return false;
 
             return true;
-        }
-
-        
-        
+        }   
     }
-
 }
