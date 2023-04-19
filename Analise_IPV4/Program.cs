@@ -93,6 +93,7 @@ namespace Analise_IPV4
             Console.WriteLine("IP broadcast: " + ipBroadCast);
             Console.WriteLine("First válid:  " + firstValid);
             Console.WriteLine("Last válid:   " + lastValid);
+            Console.WriteLine("SubRedes:     " + qtdSR);
             Console.WriteLine("Hosts:        " + qtdHost);
 
         }
